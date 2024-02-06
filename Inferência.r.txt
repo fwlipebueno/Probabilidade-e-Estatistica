@@ -1,0 +1,140 @@
+setwd("C:\\Programas")
+
+dados <- read.csv("dados.csv",sep=";",dec=",")
+
+#######################################################################################
+# Intervalo de Confiança Para a Média e Variância Populacionais
+#######################################################################################
+
+DietaA <- dados[dados$Dieta=="A",]
+qqnorm(DietaA$Perda,ylab="Quantis Observados",xlab="Quantis Teóricos")
+qqline(DietaA$Perda,col="red")
+
+t.test(DietaA$Perda,conf.level=0.95)$conf.int
+
+install.packages("BSDA")
+library(BSDA)
+z.test(DietaA$Perda,sigma.x=8.5,conf.level=0.95)$conf.int
+
+install.packages("EnvStats")
+library(EnvStats)
+varTest(DietaA$Perda,conf.level=0.95)$conf.int
+sqrt(varTest(DietaA$Perda,conf.level=0.95)$conf.int)
+
+#######################################################################################
+# Intervalo de Confiança Para a Proporção Populacional
+#######################################################################################
+
+tabela <- table(DietaA$Hipertensao)
+prop.test(tabela[1],sum(tabela),conf.level=0.95)$conf.int
+
+#######################################################################################
+# Teste de Hipoteses Para a Média Populacional
+#######################################################################################
+
+qqnorm(dados$Perda,ylab="Quantis Observados",xlab="Quantis Teóricos")
+qqline(dados$Perda,col="red")
+
+t.test(dados$Perda,mu=20,conf.level=0.95)
+
+shapiro.test(dados$Perda)
+
+library(BSDA)
+z.test(dados$Perda,sigma.x=sqrt(72.25),mu=20,conf.level=0.95)
+
+#######################################################################################
+# Teste de Hipoteses Para a Variância Populacional
+#######################################################################################
+
+library(EnvStats)
+varTest(dados$Perda,sigma.squared=72.25,conf.level=0.90)
+
+#######################################################################################
+# Teste de Hipoteses Para a Proporção Populacional
+#######################################################################################
+
+tabela <- table(dados$Hipertensao)
+prop.test(tabela[1],sum(tabela),p=0.35,conf.level=0.90)
+
+#######################################################################################
+# Comparação Entre Duas Médias
+#######################################################################################
+
+# Comparando preço/m2 (desvios padrão populacionais: DP.RC=71 e DP.RO=82)
+
+RC <- c(4120,4050,3960,3940,3890,3910,4090,4120,4040,4060,4030,3920,4060,3970,4030,4090,
+        3960,3970,4000,4120)
+RO <- c(3720,3490,3810,3540,3570,3770,3640,3660,3610,3740,3610,3590,3690,3740,3750,3800,
+        3680,3640)
+
+qqnorm(RC,ylab="Quantis Observados",xlab="Quantis Teóricos")
+qqline(RC,col="red")
+shapiro.test(RC)
+
+qqnorm(RO,ylab="Quantis Observados",xlab="Quantis Teóricos")
+qqline(RO,col="red")
+shapiro.test(RO)
+
+library(BSDA)
+z.test(RC,RO,sigma.x=71,sigma.y=82,conf.level=0.90)
+
+# Comparando o nível sérico de ferro em umol/l
+
+fibrose.cistica <- c(13.78,18.01,19.65,19.66,12.64,11.53,13.44,18.31,15.4,14.92,10.06,14.62,13.97)
+      saudaveis <- c(26.04,30.42,11.53,29.08,19.82,16.01,20.39,21.46,6.95,20.5,30.2)
+
+qqnorm(fibrose.cistica,ylab="Quantis Observados",xlab="Quantis Teóricos")
+qqline(fibrose.cistica)
+shapiro.test(fibrose.cistica)
+
+qqnorm(saudaveis,ylab="Quantis Observados",xlab="Quantis Teóricos")
+qqline(saudaveis)
+shapiro.test(saudaveis)
+
+var.test(fibrose.cistica,saudaveis)$p.value
+t.test(fibrose.cistica,saudaveis,var.equal=FALSE,conf.level=0.90)
+
+# Comparando pressão sistólica em mm/Hg
+
+          Placebo <- c(211,210,210,203,196,190,191,177,173,170,163)
+Hidroclorotiazida <- c(181,172,196,191,167,161,178,160,149,119,156)
+
+qqnorm(Placebo,ylab="Quantis Observados",xlab="Quantis Teóricos")
+qqline(Placebo,col="red")
+shapiro.test(Placebo)
+
+qqnorm(Hidroclorotiazida,ylab="Quantis Observados",xlab="Quantis Teóricos")
+qqline(Hidroclorotiazida,col="red")
+shapiro.test(Hidroclorotiazida)
+
+t.test(Placebo,Hidroclorotiazida,paired=TRUE,conf.level=0.99)
+
+# Comparando Proporção de Perda de Peso em %
+
+DietaA <- dados[dados$Dieta=="A",]
+DietaB <- dados[dados$Dieta=="B",]
+
+qqnorm(DietaA$Perda,ylab="Quantis Observados",xlab="Quantis Teóricos")
+qqline(DietaA$Perda,col="red")
+shapiro.test(DietaA$Perda)
+
+qqnorm(DietaB$Perda,ylab="Quantis Observados",xlab="Quantis Teóricos")
+qqline(DietaB$Perda,col="red")
+shapiro.test(DietaB$Perda)
+
+var.test(dados$Perda~dados$Dieta)$p.value
+t.test(dados$Perda~dados$Dieta,var.equal=TRUE,conf.level=0.90)
+
+#########################################################################################
+# Teste de correlacao
+#########################################################################################
+
+qqnorm(dados$Perda,ylab="Quantis Observados",xlab="Quantis Teóricos")
+qqline(dados$Perda,col="red")
+shapiro.test(dados$Perda)
+
+qqnorm(dados$Idade,ylab="Quantis Observados",xlab="Quantis Teóricos")
+qqline(dados$Idade,col="red")
+shapiro.test(dados$Idade)
+
+cor.test(dados$Perda,dados$Idade,method="pearson",conf.level=0.90)

@@ -1,0 +1,92 @@
+#########################################################################################
+# Testes nao parametricos
+#########################################################################################
+setwd("C:\\Programas")
+
+dados1 <- read.csv("pareado.csv",sep=";",dec=",")
+dados2 <- read.csv("independente.csv",sep=";",dec=",")
+dados3 <- read.csv("kruskal.csv",sep=";")
+
+###########################
+# Teste de Wilcoxon Pareado
+###########################
+
+antes  <- dados1[dados1$Intervencao=="Antes",]
+depois <- dados1[dados1$Intervencao=="Depois",]
+
+qqnorm(antes$Peso,ylab="Quantis Observados",xlab="Quantis Teóricos")
+qqline(antes$Peso,col="red")
+shapiro.test(antes$Peso)
+
+qqnorm(depois$Peso,ylab="Quantis Observados",xlab="Quantis Teóricos")
+qqline(depois$Peso,col="red")
+shapiro.test(depois$Peso)
+
+wilcox.test(dados1$Peso~dados1$Intervencao,paired=T)
+
+#######################################################
+# Teste de Wilcoxon-Mann-Whitney Amostras Independentes
+#######################################################
+
+DietaA <- dados2[dados2$Dieta=="A",]
+DietaB <- dados2[dados2$Dieta=="B",]
+
+qqnorm(DietaA$Perda,ylab="Quantis Observados",xlab="Quantis Teóricos")
+qqline(DietaA$Perda,col="red")
+shapiro.test(DietaA$Perda)
+
+qqnorm(DietaB$Perda,ylab="Quantis Observados",xlab="Quantis Teóricos")
+qqline(DietaB$Perda,col="red")
+shapiro.test(DietaB$Perda)
+
+wilcox.test(dados2$Perda~dados2$Dieta)
+
+#########################
+# Teste de Kruskal Wallis
+#########################
+ANOVA <- aov(dados3$Altura~dados3$Adubo)
+
+residos <- ANOVA$res
+
+qqnorm(residos,ylab="Quantis Observados",xlab="Quantis Teóricos")
+qqline(residos,col="red")
+shapiro.test(residos)
+
+library(lmtest)
+bptest(ANOVA)
+gqtest(ANOVA)
+
+dwtest(ANOVA) #Teste de independencia de Durbin-Watson
+
+#install.packages("agricolae")
+library(agricolae)
+
+K.teste <- kruskal(dados3$Altura,dados3$Adubo)
+K.teste$statistics
+K.teste$groups
+
+#########################################################################################
+# Correlacao
+#########################################################################################
+
+peso     <- c(56,58,70,72,81,92,95,100,104,112)
+glicemia <- c(71,78,79,85,85,102,110,176,181,318)
+
+qqnorm(peso,ylab="Quantis Observados",xlab="Quantis Teóricos")
+qqline(peso,col="red")
+shapiro.test(peso)
+
+qqnorm(glicemia,ylab="Quantis Observados",xlab="Quantis Teóricos")
+qqline(glicemia,col="red")
+shapiro.test(glicemia)
+
+cor.test(peso,glicemia,method="spearman")
+cor.test(peso,glicemia,method="kendall")
+
+#########################################################################################
+# Teste Qui-quadrado (Alternativa a Regressao Logistica)
+#########################################################################################
+
+dados  <- read.csv("dados.csv",sep=";",dec=",")
+
+chisq.test(table(dados$Dieta,dados$Hipertensao))

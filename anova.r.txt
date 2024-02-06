@@ -1,0 +1,40 @@
+#########################################################################################
+# Analise de Variancia (ANOVA)
+#########################################################################################
+setwd("C:\\Programas") #Setar o diretorio
+
+dados <- read.csv("anova.csv",sep=";",dec=",") # Tipo de Rolamento vs Durabilidade (semanas)
+
+ANOVA <- aov(dados$Durabilidade~dados$Tipo) #Faz a ANOVA
+
+######################################
+# Verificando Normalidade dos Residuos
+######################################
+
+qqnorm(ANOVA$res) #QQ-plot Normal
+qqline(ANOVA$res,col="red") #Coloca a linha teorica no QQ-plot
+
+shapiro.test(ANOVA$res) #Teste de normalidade de Shapiro-Wilk
+
+#############################################
+# Verificando homocedasticidade dos Residuos
+#############################################
+#install.packages("lmtest")
+library(lmtest) #Carrega a library lmtest
+
+bptest(ANOVA) #Teste de homocedasticidade de Breusch-Pagan
+gqtest(ANOVA) #Teste de homocedasticidade de Goldfeld-Quandt
+
+#########################################
+# Verificando independencia dos Residuos
+#########################################
+
+dwtest(ANOVA) #Teste de independencia de Durbin-Watson
+
+#################
+# Tabela de ANOVA
+#################
+
+summary(ANOVA)[[1]][["Pr(>F)"]] #P-valor da ANOVA
+
+TukeyHSD(ANOVA,conf.level=0.90) #Pos teste de Tukey (Honest Significant Difference)
